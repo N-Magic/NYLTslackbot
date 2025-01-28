@@ -2,6 +2,7 @@ const { App } = require("@slack/bolt");
 const fs = require("fs");
 const path = require("path");
 const sqlite3 = require("sqlite3");
+require("dotenv").config();
 
 const adminID = "U07PGNGH4LD"; // Me
 const modIDs = ["U07PGNGH4LD", "U07NED2FV7V", "U07N9B0NBP0", "U07PK78J8S2"];
