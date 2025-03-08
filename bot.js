@@ -331,7 +331,7 @@ app.message("!Flip", async ({ message, say }) => {
   }
 });
 app.message("!Gamble", async ({ message, say }) => {
-  if (message.user !== adminID) {
+  if (message.user == adminID) {
     await say("You win!");
     return;
   }
