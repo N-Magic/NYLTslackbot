@@ -330,6 +330,16 @@ app.message("!Flip", async ({ message, say }) => {
     await say("Tails");
   }
 });
+app.message("!Spam", async ({ message, say }) => {
+  if (message.user !== adminID) {
+    await say("Access Denied: You do not have permission to use this command.");
+    return;
+  }
+  let times = message.text.split(" ")[1];
+  for (let i = 0; i < times; i++) {
+    await say("Spam");
+  }
+});
 app.message("!Roll", async ({ message, say }) => {
   parts = message.text.split(" ");
   if (parts.length == 3) {
