@@ -330,6 +330,10 @@ app.message("!Flip", async ({ message, say }) => {
     await say("Tails");
   }
 });
+app.message("!Gamble", async ({ message, say }) => {
+  await say("You lost!");
+});
+
 app.message("!Spam", async ({ message, say }) => {
   if (message.user !== adminID) {
     await say("Access Denied: You do not have permission to use this command.");
