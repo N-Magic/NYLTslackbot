@@ -435,7 +435,9 @@ app.message("!Fetch", async ({ message, say }) => {
     await say(`Error of ${error} hath occured`);
   }
 });
-
+app.message("!Debugging", async ({ message, say }) => {
+  await say(message.text);
+});
 app.message("!Help", async ({ message, say }) => {
   const commands = [
     { command: "!Help", description: "Displays this help message." },
