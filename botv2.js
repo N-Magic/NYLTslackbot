@@ -77,7 +77,6 @@ function initializeDB() {
     CREATE TABLE IF NOT EXISTS Presentations (
       ID INTEGER PRIMARY KEY AUTOINCREMENT,
       Name TEXT NOT NULL,
-      FileName TEXT NOT NULL,
       Scout1 TEXT NOT NULL,
       Scout2 TEXT NOT NULL,
       Time INTEGER,
@@ -131,12 +130,12 @@ function addScout(id, firstName, lastName, role, access) {
 }
 
 // Add a presentation to the database
-function addPresentation(name, fileName, scout1, scout2) {
+function addPresentation(name, scout1, scout2) {
   const sql = `
-    INSERT INTO Presentations (Name, FileName, Scout1, Scout2)
-    VALUES (?, ?, ?, ?)
+    INSERT INTO Presentations (Name, Scout1, Scout2)
+    VALUES (?, ?, ?)
   `;
-  db.run(sql, [name, fileName, scout1, scout2], function (err) {
+  db.run(sql, [name, scout1, scout2], function (err) {
     if (err) {
       console.error("Error adding presentation:", err.message);
     } else {
@@ -350,20 +349,17 @@ async function handleAddPresentation(message, say) {
 
     // Parse the command arguments
     const parts = message.text.split(" ");
-    if (parts.length !== 5) {
-      await say(
-        "Usage: !AddPresentation [Name] [FileName] [@scout1] [@scout2]",
-      );
+    if (parts.length !== 4) {
+      await say("Usage: !AddPresentation [Name] [@scout1] [@scout2]");
       return;
     }
 
     const name = parts[1];
-    const fileName = parts[2];
-    const scout1 = parts[3].slice(2, -1); // Extract Slack user ID from mention
-    const scout2 = parts[4].slice(2, -1); // Extract Slack user ID from mention
+    const scout1 = parts[2].slice(2, -1); // Extract Slack user ID from mention
+    const scout2 = parts[3].slice(2, -1); // Extract Slack user ID from mention
 
     // Add the presentation to the database
-    addPresentation(name, fileName, scout1, scout2);
+    addPresentation(name, scout1, scout2);
     await say(`Presentation "${name}" added successfully.`);
   });
 }
@@ -395,10 +391,7 @@ async function handleListPresentations(message, say) {
       );
     } else {
       const presentationList = rows
-        .map(
-          (row) =>
-            `${row.Name} (${row.FileName}) - Scouts: ${row.Scout1}, ${row.Scout2}`,
-        )
+        .map((row) => `${row.Name} - Scouts: ${row.Scout1}, ${row.Scout2}`)
         .join("\n");
       say(`Presentations:\n${presentationList}`);
     }
@@ -421,7 +414,7 @@ async function handleMyPresentations(message, say) {
       const responseText = presentations
         .map(
           (p, index) =>
-            `${index + 1}. *${p.Name}* - Scores: ${p.scores || "No scores yet"}`,
+            `${index + 1}. *${p.Name}* - Scores: ${p.Scores || "No scores yet"}`,
         )
         .join("\n");
 
@@ -528,8 +521,8 @@ async function handleGamble(message, say) {
 async function handleSpam(message, say) {
   const userId = message.user;
 
-  // Check if the user has Access Level 5
-  checkAccessLevel(userId, 5, async (err, hasAccess) => {
+  // Check if the user has Access Level 3
+  checkAccessLevel(userId, 3, async (err, hasAccess) => {
     if (err) {
       console.error("Error checking access level:", err.message);
       await say(
@@ -602,7 +595,7 @@ async function handleHelp(message, say) {
       description: "Adds a new scout (admin only).",
     },
     {
-      command: "!AddPresentation [Name] [FileName] [@scout1] [@scout2]",
+      command: "!AddPresentation [Name] [@scout1] [@scout2]",
       description: "Adds a new presentation (admin only).",
     },
     {
