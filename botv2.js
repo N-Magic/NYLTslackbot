@@ -2,6 +2,7 @@ const { App } = require("@slack/bolt");
 const sqlite3 = require("sqlite3");
 const path = require("path");
 const fs = require("fs");
+const axios = require("axios");
 require("dotenv").config();
 let massiveButtonClicked = 0;
 
@@ -179,6 +180,14 @@ function getPresentationsByScout(scoutId, callback) {
   });
 }
 
+async function handleAI(message, say) {
+  const response = await callOllama(message.text);
+  await say({
+    text: response,
+    channel: message.channel,
+  });
+}
+
 // Handle banned words
 async function handleBannedWord(message, say) {
   const userId = message.user;
@@ -254,6 +263,9 @@ async function handleCommand(message, say) {
       break;
     case "!MyPresentations":
       await handleMyPresentations(message, say);
+      break;
+    case "!AI":
+      await handleAI(message, say);
       break;
     case "!Rate":
       await handleRate(message, say);
@@ -676,6 +688,44 @@ app.message(async ({ message, say }) => {
     await handleCommand(message, say);
   }
 });
+
+// AI Stuff section
+
+async function callOllama(prompt, model = "deepseek-r1:1.5b") {
+  try {
+    const response = await axios({
+      method: "post",
+      url: "http://127.0.0.1:11434/api/generate",
+      data: { model, prompt },
+      responseType: "stream", // Handle streaming response
+    });
+
+    let fullResponse = "";
+    return new Promise((resolve, reject) => {
+      response.data.on("data", (chunk) => {
+        try {
+          const jsonChunk = JSON.parse(chunk.toString());
+          if (jsonChunk.response) {
+            fullResponse += jsonChunk.response;
+          }
+          if (jsonChunk.done) {
+            resolve(fullResponse);
+          }
+        } catch (error) {
+          console.error("JSON Parsing Error:", error);
+          reject("Error processing AI response.");
+        }
+      });
+
+      response.data.on("error", (error) => {
+        reject("Ollama API Stream Error: " + error.message);
+      });
+    });
+  } catch (error) {
+    console.error("Ollama API error:", error.message);
+    return "Oops! I couldn't reach the AI right now.";
+  }
+}
 
 // Start the app
 (async () => {
