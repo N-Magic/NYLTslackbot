@@ -4,7 +4,7 @@ async function callOllama(prompt, model = "deepseek-r1:1.5b") {
   try {
     const response = await axios({
       method: "post",
-      url: "http://localhost:11434/api/generate",
+      url: "http://127.0.0.1:11434/api/generate",
       data: { model, prompt },
       responseType: "stream", // Handle streaming response
     });
