@@ -247,11 +247,14 @@ async function handleCommand(message, say) {
   const parts = text.split(" ");
   const command = parts[0]; // Extract the command (e.g., "!AddScout")
 
-  // Route commands to their respective handlers
   switch (command) {
     case "!AddScout":
       await handleAddScout(message, say);
       break;
+    // case "!getUserID":
+    //   console.log(message.text);
+    //   await getUserID(message, say);
+    //   break;
     case "!AddPresentation":
       await handleAddPresentation(message, say);
       break;
@@ -529,6 +532,11 @@ async function handleGamble(message, say) {
   }
 }
 
+async function getUserID(message, say) {
+  const test = message.text;
+  await say(test);
+}
+
 // Command: Spam
 async function handleSpam(message, say) {
   const userId = message.user;
@@ -673,16 +681,21 @@ app.message(async ({ message, say }) => {
   const containsBannedWord = bannedWords.some((word) =>
     lowerText.includes(word),
   );
+
+  if (message.user == "U07P6DNFBRN") {
+    await say("Are you sure?");
+  }
+
   if (containsBannedWord) {
     await handleBannedWord(message, say);
     return; // Stop further processing
   }
+
   const containsMassive = lowerText.includes("massive");
   if (containsMassive) {
     await handleMassive(message, say);
     return; // Stop further processing
   }
-
   // Check if the message is a command
   if (text.startsWith("!")) {
     await handleCommand(message, say);
