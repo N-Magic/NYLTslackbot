@@ -248,6 +248,9 @@ async function handleCommand(message, say) {
   const command = parts[0]; // Extract the command (e.g., "!AddScout")
 
   switch (command) {
+    case "!Random":
+      await handleRandom(message, say);
+      break;
     case "!AddScout":
       await handleAddScout(message, say);
       break;
@@ -576,6 +579,24 @@ async function handleSpam(message, say) {
   });
 }
 
+async function handleRandom(message, say) {
+  try {
+    const response = await fetch(
+      "https://random-word-api.vercel.app/api?words=1",
+    );
+    if (!response.ok) {
+      throw new Error("OH NO");
+    }
+    const data = await response.json();
+    const word = data[0]; // The API returns an array like ["example"]
+
+    console.log(word);
+    await say(word); // Assume say is an async function too
+  } catch (error) {
+    console.log("fetch error:", error);
+    await say("Something went wrong while fetching the word.");
+  }
+}
 // Command: Roll Dice
 async function handleRoll(message, say) {
   const parts = message.text.split(" ");
